@@ -1,4 +1,28 @@
 .service-name {
-    color: cornflowerblue;
+    margin-top: 20px;
+    color: chocolate;
     text-align: center;
+    font-size: 35px;
+}
+
+.model {
+    margin: 2%;
+    display: flex;
+    justify-content: center;
+}
+
+.model-input {
+    padding-right: 10%;
+}
+
+.combo-box {
+    max-width: 450px;
+}
+
+button {
+    margin-top: 15px;
+}
+
+.model-prediction {
+    min-width: 100px;
 }
