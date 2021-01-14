@@ -12,7 +12,7 @@ prediction_holder = WebAppPredictionHolder()
 
 @app.route('/')
 def discount_service():
-    return render_template('index.html', users=users, products=products)
+    return render_app()
 
 
 @app.route('/first_model_discount', methods=['POST'])
