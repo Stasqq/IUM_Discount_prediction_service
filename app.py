@@ -8,7 +8,6 @@ app = Flask(__name__)
 web_app_builder = WebAppBuilder()
 products = web_app_builder.get_products_for_web()
 users = web_app_builder.get_users_for_web()
-prediction_holder = WebAppPredictionHolder()
 
 
 @app.route('/')
@@ -18,36 +17,20 @@ def discount_service():
 
 @app.route('/first_model_discount', methods=['POST'])
 def first_model_discount():
-    user = request.form.get('user_id')
-    user_id = get_user_id_from_user(user)
-    product = request.form.get('product')
-    product_id = get_product_id_from_product(product)
-    web_output_data = web_app_builder.get_merged_session_data(user_id, product_id)
-    print(web_output_data)
-    # TODO: tutaj trzeba uzupelnic predykcje drugiego modelu
-    discount = ' '
-    prediction_holder.first_model = ModelPrediction([user, product, discount])
+    web_app_builder.predict_with_first_model(request.form.get('user_id'), request.form.get('product'))
     return render_app()
 
 
 @app.route('/second_model_discount', methods=['POST'])
 def second_model_discount():
-    user = request.form.get('user_id')
-    user_id = get_user_id_from_user(user)
-    product = request.form.get('product')
-    product_id = get_product_id_from_product(product)
-    web_output_data = web_app_builder.get_merged_session_data(user_id, product_id)
-    print(web_output_data)
-    # TODO: tutaj trzeba uzupelnic predykcje drugiego modelu
-    discount = ' '
-    prediction_holder.second_model = ModelPrediction([user, product, discount])
+    web_app_builder.predict_with_second_model(request.form.get('user_id'), request.form.get('product'),)
     return render_app()
 
 
 def render_app():
     return render_template('index.html', users=users, products=products,
-                           first_model_discount=prediction_holder.first_model.prediction,
-                           second_model_discount=prediction_holder.second_model.prediction)
+                           first_model_discount=web_app_builder.prediction_holder.first_model.prediction,
+                           second_model_discount=web_app_builder.prediction_holder.second_model.prediction)
 
 
 if __name__ == '__main__':
