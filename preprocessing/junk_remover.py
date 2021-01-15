@@ -1,5 +1,4 @@
 from preprocessing.session_user_filler import SessionUserFiller
-from preprocessing.timestamp_handler import TimestampHandler
 
 MIN_PRODUCT_PRICE = 1
 MAX_PRODUCT_PRICE = 10000
@@ -8,13 +7,11 @@ class JunkRemover:
 
     def __init__(self):
         self._session_user_filler = SessionUserFiller()
-        self._timestamp_handler = TimestampHandler()
 
     def delete_junk_data(self, sessions, products):
         pre_sessions = self._clear_sessions(sessions)
         new_products = self._clear_products(products)
         new_sessions = self._remove_sessions_with_removed_products(pre_sessions, new_products)
-
         return new_sessions, new_products
 
     def _clear_sessions(self, sessions):
@@ -22,7 +19,6 @@ class JunkRemover:
         sessions = self._delete_sessions_without(sessions, 'user_id')
         sessions = self._delete_sessions_without(sessions, 'product_id')
         sessions = self._drop_buy_sessions_without_purchase_id(sessions)
-        sessions = self._timestamp_handler.turn_timestamp_into_age(sessions)
         return sessions
 
     def _delete_sessions_without(self, sessions, attribute):
