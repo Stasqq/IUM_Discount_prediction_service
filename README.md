@@ -1,7 +1,9 @@
 # IUM Discount prediction service
 
 Autorzy:
+
 Czobot Stanisław
+
 Kucharki Michał
 
 Projekt na przedmiot Inżynieria Uczenia Maszynowego.
