@@ -1,5 +1,4 @@
 # IUM_Discount_prediction_service
-# IUM Discount prediction service
 
 Autorzy:
 
