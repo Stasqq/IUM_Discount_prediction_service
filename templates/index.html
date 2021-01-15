@@ -11,6 +11,60 @@
     <h1 class="service-name">
         Discount prediction service
     </h1>
-
+    <div class="model">
+        <div class="model-input">
+            <form id="first-model-form" action="{{ url_for('first_model_discount') }}" method="post">
+                <h1>First model</h1>
+                <h2>Discount recommendation for user:</h2>
+                <select name="user_id" method="post" action="/">
+                    {% for user in users %}
+                    <option class="combo-box-item" value="{{ user }}">{{ user }}</option>
+                    {% endfor %}
+                </select>
+                <h2>For product:</h2>
+                <select class="combo-box" name="product" method="post" action="/">
+                    {% for product in products %}
+                    <option value="{{ product }}">{{ product }}</option>
+                    {% endfor %}
+                </select>
+                <div></div>
+                <button form="first-model-form" type="submit">Predict discount</button>
+            </form>
+        </div>
+        <div class="model-prediction">
+            <h3> First model prediction: </h3>
+            {% for line in first_model_discount %}
+            <p>{{ line }}</p>
+            {% endfor %}
+        </div>
+    </div>
+    <hr>
+    <div class="model">
+        <div class="model-input">
+            <form id="second-model-form" action="{{ url_for('second_model_discount') }}" method="post">
+                <h1>Second model</h1>
+                <h2>Discount recommendation for user:</h2>
+                <select name="user_id" method="post" action="/">
+                    {% for user in users %}
+                    <option class="combo-box-item" value="{{ user }}">{{ user }}</option>
+                    {% endfor %}
+                </select>
+                <h2>For product:</h2>
+                <select class="combo-box" name="product" method="post" action="/">
+                    {% for product in products %}
+                    <option value="{{ product }}">{{ product }}</option>
+                    {% endfor %}
+                </select>
+                <div></div>
+                <button form="second-model-form" type="submit">Predict discount</button>
+            </form>
+        </div>
+        <div class="model-prediction">
+            <h3> Second model prediction: </h3>
+            {% for line in second_model_discount %}
+            <p>{{ line }}</p>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 </html>
