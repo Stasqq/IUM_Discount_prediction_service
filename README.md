@@ -6,13 +6,13 @@ Czobot Stanisław
 
 Kucharki Michał
 
-Projekt na przedmiot Inżynieria Uczenia Maszynowego.
+Projekt z przedmiot Inżynieria Uczenia Maszynowego.
 Projekt składa się z dwóch zasadniczych części:
   - obróbka danych wejściowych, tworzenie i trenowanie modeli (wykonane w notatnikach jupyter)
-  - aplikakacja webowa wykorzystująca wcześniej przyfotowane modele do predykcji wartości proponowanych zniżek, po wybraniu odpowiedniego klienta i produktu (aplikacja napisana w języku Python z wykorzystaniem frameworka Flask)
+  - aplikakacja webowa wykorzystująca wcześniej przygotowane modele do predykcji wartości zniżek, po wybraniu odpowiedniego klienta i produktu (aplikacja napisana w języku Python z wykorzystaniem frameworka Flask)
 
 ## Instalacja
-W celu zainstalowania potrzebnych plików należ wykonać komendę:
+W celu zainstalowania potrzebnych pakietów należ wykonać komendę:
 
 ```
 pip install -r requirements.txt
