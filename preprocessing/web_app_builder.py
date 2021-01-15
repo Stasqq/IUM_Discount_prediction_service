@@ -1,3 +1,4 @@
+import pickle
 from datetime import datetime
 
 from json_handler.json_handler import load_json_data, load_jsonl_data
@@ -6,8 +7,10 @@ from json_handler.json_handler import load_json_data, load_jsonl_data
 def get_user_id_from_user(user):
     return int(user.partition(":")[0])
 
+
 def get_product_id_from_product(product):
     return int(product.partition(":")[0])
+
 
 class ModelPrediction:
     def __init__(self, prediction):
@@ -62,13 +65,18 @@ class WebAppBuilder:
         self._clean_products = load_json_data('clean_data/clean_products.json')
         self._clean_users = load_jsonl_data('data/input/users.jsonl')
         self._create_users_sessions_dict()
+        self.prediction_holder = WebAppPredictionHolder()
+        with open('models/dummy.pckl', 'rb') as file:
+            self.dummy = pickle.load(file)
+        with open('models/regression.pckl', 'rb') as file:
+            self.regression = pickle.load(file)
 
     def get_products_for_web(self):
-        return [f'{product["product_id"]}:{product["product_name"]}:{product["price"]}' for product in self._clean_products]
+        return [f'{product["product_id"]}:{product["product_name"]}:{product["price"]}' for product in
+                self._clean_products]
 
     def get_users_for_web(self):
         return [f'{user["user_id"]}:{user["name"]}' for user in self._clean_users]
-
 
     def _create_users_sessions_dict(self):
         sessions_list = load_jsonl_data('prepared_data/prepared_sessions.jsonl')
@@ -77,7 +85,8 @@ class WebAppBuilder:
 
         self.products = dict()
         for product in products_list:
-            self.products[product['product_id']] = Product(product['product_id'], product['price'], product['category_path'])
+            self.products[product['product_id']] = Product(product['product_id'], product['price'],
+                                                           product['category_path'])
 
         self.users = dict()
         for user in users_list:
@@ -128,8 +137,7 @@ class WebAppBuilder:
                 session.user.bought_products_in_category_number[session.product.category] = \
                     purchases_in_category_number + 1
 
-
-    def get_merged_session_data(self, user_id, product_id):
+    def _get_merged_session_data(self, user_id, product_id, discount):
         user = self.users[user_id]
         product = self.products[product_id]
         serializable_dict = dict()
@@ -137,36 +145,67 @@ class WebAppBuilder:
         serializable_dict['price'] = product.price
 
         serializable_dict['product_views_number'] = user.products_views_number.get(product.product_id, 0)
-        user.products_views_number[product.product_id] = serializable_dict['product_views_number'] +1
+        user.products_views_number[product.product_id] = serializable_dict['product_views_number'] + 1
 
         serializable_dict['category_views_number'] = user.category_views_number.get(product.category, 0)
-        user.category_views_number[product.category] = serializable_dict['category_views_number'] +1
+        user.category_views_number[product.category] = serializable_dict['category_views_number'] + 1
 
-        #todo:: tu trzeba wstawiac w petli wartosci discount
-        serializable_dict['bought_with_discount_number'] = 0
+        serializable_dict['bought_with_discount_number'] = user.bought_with_discount_number.get(discount, 0)
 
-        serializable_dict['bought_products_in_category_number'] = user.bought_products_in_category_number.get(product.category, 0)
-        user.bought_products_in_category_number[product.category] = serializable_dict['bought_products_in_category_number'] +1
+        serializable_dict['bought_products_in_category_number'] = user.bought_products_in_category_number.get(
+            product.category, 0)
+        user.bought_products_in_category_number[product.category] = serializable_dict[
+                                                                        'bought_products_in_category_number'] + 1
 
-        #todo:: tu trzeba wstawiac w petli kolejne wartosci discount
-        serializable_dict['discount'] = 0
+        # tu przy predykcji trzeba wstawiac w petli kolejne wartosci discount
+        serializable_dict['discount'] = discount
 
-        #todo:: ile tu wstawiac
+        # todo:: ile tu wstawiac
         serializable_dict['elapsed_time'] = 100
 
         serializable_dict['oh_category0'] = 1 if product.category == 'Gry i konsole;Gry komputerowe' else 0
-        serializable_dict['oh_category1'] = 1 if product.category == 'Gry i konsole;Gry na konsole;Gry PlayStation3' else 0
+        serializable_dict[
+            'oh_category1'] = 1 if product.category == 'Gry i konsole;Gry na konsole;Gry PlayStation3' else 0
         serializable_dict['oh_category2'] = 1 if product.category == 'Gry i konsole;Gry na konsole;Gry Xbox 360' else 0
-        serializable_dict['oh_category3'] = 1 if product.category == 'Komputery;Drukarki i skanery;Biurowe urządzenia wielofunkcyjne' else 0
+        serializable_dict[
+            'oh_category3'] = 1 if product.category == 'Komputery;Drukarki i skanery;Biurowe urządzenia wielofunkcyjne' else 0
         serializable_dict['oh_category4'] = 1 if product.category == 'Komputery;Monitory;Monitory LCD' else 0
         serializable_dict['oh_category5'] = 1 if product.category == 'Komputery;Tablety i akcesoria;Tablety' else 0
         serializable_dict['oh_category6'] = 1 if product.category == 'Sprzęt RTV;Audio;Słuchawki' else 0
-        serializable_dict['oh_category7'] = 1 if product.category == 'Sprzęt RTV;Przenośne audio i video;Odtwarzacze mp3 i mp4' else 0
+        serializable_dict[
+            'oh_category7'] = 1 if product.category == 'Sprzęt RTV;Przenośne audio i video;Odtwarzacze mp3 i mp4' else 0
         serializable_dict['oh_category8'] = 1 if product.category == 'Sprzęt RTV;Video;Odtwarzacze DVD' else 0
-        serializable_dict['oh_category9'] = 1 if product.category == 'Sprzęt RTV;Video;Telewizory i akcesoria;Anteny RTV' else 0
-        serializable_dict['oh_category10'] = 1 if product.category == 'Sprzęt RTV;Video;Telewizory i akcesoria;Okulary 3D' else 0
-        serializable_dict['oh_category11'] = 1 if product.category == 'Telefony i akcesoria;Akcesoria telefoniczne;Zestawy głośnomówiące' else 0
-        serializable_dict['oh_category12'] = 1 if product.category == 'Telefony i akcesoria;Akcesoria telefoniczne;Zestawy słuchawkowe' else 0
+        serializable_dict[
+            'oh_category9'] = 1 if product.category == 'Sprzęt RTV;Video;Telewizory i akcesoria;Anteny RTV' else 0
+        serializable_dict[
+            'oh_category10'] = 1 if product.category == 'Sprzęt RTV;Video;Telewizory i akcesoria;Okulary 3D' else 0
+        serializable_dict[
+            'oh_category11'] = 1 if product.category == 'Telefony i akcesoria;Akcesoria telefoniczne;Zestawy głośnomówiące' else 0
+        serializable_dict[
+            'oh_category12'] = 1 if product.category == 'Telefony i akcesoria;Akcesoria telefoniczne;Zestawy słuchawkowe' else 0
         serializable_dict['oh_category13'] = 1 if product.category == 'Telefony i akcesoria;Telefony komórkowe' else 0
         serializable_dict['oh_category14'] = 1 if product.category == 'Telefony i akcesoria;Telefony stacjonarne' else 0
         return serializable_dict
+
+    def predict_with_first_model(self, user, product):
+        user_id = get_user_id_from_user(user)
+        product_id = get_product_id_from_product(product)
+        for discount in range(0, 21, 5):
+            model_input_data = self._get_merged_session_data(user_id, product_id, discount)
+            prediction = self.dummy.predict(model_input_data)
+            if prediction[0]:
+                self.prediction_holder.first_model.prediction = [user, product, discount]
+                return
+        self.prediction_holder.first_model.prediction = [user, product, 'nie kupi']
+
+    def predict_with_second_model(self, user, product):
+        user_id = get_user_id_from_user(user)
+        product_id = get_product_id_from_product(product)
+        for discount in range(0, 21, 5):
+            model_input_data = self._get_merged_session_data(user_id, product_id, discount)
+            prediction = self.regression.predict(model_input_data)
+            print(prediction)
+            if prediction[0]:
+                self.prediction_holder.second_model.prediction = [user, product, discount]
+                return
+        self.prediction_holder.second_model.prediction = [user, product, 'nie kupi']
