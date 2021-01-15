@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 
-from preprocessing.web_app_builder import WebAppBuilder, WebAppPredictionHolder, ModelPrediction, get_user_id_from_user
+from preprocessing.web_app_builder import WebAppBuilder, WebAppPredictionHolder, ModelPrediction, get_user_id_from_user, \
+    get_product_id_from_product
 
 app = Flask(__name__)
 
@@ -20,6 +21,9 @@ def first_model_discount():
     user = request.form.get('user_id')
     user_id = get_user_id_from_user(user)
     product = request.form.get('product')
+    product_id = get_product_id_from_product(product)
+    web_output_data = web_app_builder.get_merged_session_data(user_id, product_id)
+    print(web_output_data)
     # TODO: tutaj trzeba uzupelnic predykcje drugiego modelu
     discount = ' '
     prediction_holder.first_model = ModelPrediction([user, product, discount])
@@ -31,6 +35,9 @@ def second_model_discount():
     user = request.form.get('user_id')
     user_id = get_user_id_from_user(user)
     product = request.form.get('product')
+    product_id = get_product_id_from_product(product)
+    web_output_data = web_app_builder.get_merged_session_data(user_id, product_id)
+    print(web_output_data)
     # TODO: tutaj trzeba uzupelnic predykcje drugiego modelu
     discount = ' '
     prediction_holder.second_model = ModelPrediction([user, product, discount])
