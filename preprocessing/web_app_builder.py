@@ -70,8 +70,8 @@ class WebAppBuilder:
         self.prediction_holder = WebAppPredictionHolder()
         with open('models/dummy.pckl', 'rb') as file:
             self.dummy = pickle.load(file)
-        with open('models/regression.pckl', 'rb') as file:
-            self.regression = pickle.load(file)
+        with open('models/svc_clf.pckl', 'rb') as file:
+            self.sfv_clf = pickle.load(file)
 
     def get_products_for_web(self):
         return [f'{product["product_id"]}:{product["product_name"]}:{product["price"]}' for product in
@@ -101,7 +101,6 @@ class WebAppBuilder:
             sessions.append(Session(user, product, session['timestamp'], session['event_type'],
                                     session['offered_discount'], session['session_id']))
 
-        records = list()
         current_session_id = 0
         last_session_timestamp = 0
         elapsed_time = 0
@@ -147,23 +146,17 @@ class WebAppBuilder:
         serializable_dict['price'] = [product.price]
 
         serializable_dict['product_views_number'] = [user.products_views_number.get(product.product_id, 0)]
-        #user.products_views_number[product.product_id] = serializable_dict['product_views_number'] + 1
 
         serializable_dict['category_views_number'] = [user.category_views_number.get(product.category, 0)]
-        #user.category_views_number[product.category] = serializable_dict['category_views_number'] + 1
 
         serializable_dict['bought_with_discount_number'] = [user.bought_with_discount_number.get(discount, 0)]
 
         serializable_dict['bought_products_in_category_number'] = [user.bought_products_in_category_number.get(
             product.category, 0)]
-        #user.bought_products_in_category_number[product.category] = serializable_dict[
-                                      #                                  'bought_products_in_category_number'] + 1
 
-        # tu przy predykcji trzeba wstawiac w petli kolejne wartosci discount
         serializable_dict['discount'] = [discount]
 
-        # todo:: ile tu wstawiac
-        serializable_dict['elapsed_time'] = [100]
+        serializable_dict['elapsed_time'] = [150]
 
         serializable_dict['oh_category0'] = [1] if product.category == 'Gry i konsole;Gry komputerowe' else [0]
         serializable_dict[
@@ -195,16 +188,13 @@ class WebAppBuilder:
         product_id = get_product_id_from_product(product)
         for discount in range(0, 21, 5):
             model_input_data = self._get_merged_session_data(user_id, product_id, discount)
-            #prediction = self.dummy.predict(pd.DataFrame(model_input_data))
-            #print(loop_counter)
-            #print(prediction)
-            score = self.dummy.score(pd.DataFrame(model_input_data), [1])
-            print(score)
-            if score > 0.8:
-                self.prediction_holder.first_model.prediction = [user, product, discount]
+            prediction = self.dummy.predict(pd.DataFrame(model_input_data))
+            if prediction[0]:
+                discount_text = "Znizka: " + str(discount)
+                self.prediction_holder.first_model.prediction = [user, product, discount_text]
                 return
             loop_counter += 1
-        self.prediction_holder.first_model.prediction = [user, product, 'nie kupi']
+        self.prediction_holder.first_model.prediction = [user, product, 'Najwyzsza 20']
 
     def predict_with_second_model(self, user, product):
         user_id = get_user_id_from_user(user)
@@ -212,13 +202,10 @@ class WebAppBuilder:
         loop_counter = 1
         for discount in range(0, 21, 5):
             model_input_data = self._get_merged_session_data(user_id, product_id, discount)
-            #prediction = self.regression.predict(pd.DataFrame(model_input_data))
-            #print(loop_counter)
-            #print(prediction)
-            score = self.regression.score(pd.DataFrame(model_input_data), [1])
-            print(score)
-            if score > 0.8:
-                self.prediction_holder.second_model.prediction = [user, product, discount]
+            prediction = self.sfv_clf.predict(pd.DataFrame(model_input_data))
+            if prediction[0]:
+                discount_text = "Znizka: " + str(discount)
+                self.prediction_holder.second_model.prediction = [user, product, discount_text]
                 return
             loop_counter += 1
-        self.prediction_holder.second_model.prediction = [user, product, 'nie kupi']
+        self.prediction_holder.second_model.prediction = [user, product, 'Najwyzsza 20']

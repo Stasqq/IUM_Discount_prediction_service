@@ -14,7 +14,7 @@
     <div class="model">
         <div class="model-input">
             <form id="first-model-form" action="{{ url_for('first_model_discount') }}" method="post">
-                <h1>First model</h1>
+                <h1>Dummy model</h1>
                 <h2>Discount recommendation for user:</h2>
                 <select name="user_id" method="post" action="/">
                     {% for user in users %}
@@ -32,7 +32,7 @@
             </form>
         </div>
         <div class="model-prediction">
-            <h3> First model prediction: </h3>
+            <h3> Dummy model prediction: </h3>
             {% for line in first_model_discount %}
             <p>{{ line }}</p>
             {% endfor %}
@@ -42,7 +42,7 @@
     <div class="model">
         <div class="model-input">
             <form id="second-model-form" action="{{ url_for('second_model_discount') }}" method="post">
-                <h1>Second model</h1>
+                <h1>SFV CLF model</h1>
                 <h2>Discount recommendation for user:</h2>
                 <select name="user_id" method="post" action="/">
                     {% for user in users %}
@@ -60,7 +60,7 @@
             </form>
         </div>
         <div class="model-prediction">
-            <h3> Second model prediction: </h3>
+            <h3> SFV CLF model prediction: </h3>
             {% for line in second_model_discount %}
             <p>{{ line }}</p>
             {% endfor %}
