@@ -68,9 +68,9 @@ class WebAppBuilder:
         self._clean_users = load_jsonl_data('data/input/users.jsonl')
         self._create_users_sessions_dict()
         self.prediction_holder = WebAppPredictionHolder()
-        with open('models/dummy.pckl', 'rb') as file:
+        with open('model/dummy.pckl', 'rb') as file:
             self.dummy = pickle.load(file)
-        with open('models/svc_clf.pckl', 'rb') as file:
+        with open('model/grid.pckl', 'rb') as file:
             self.sfv_clf = pickle.load(file)
 
     def get_products_for_web(self):
